@@ -1,20 +1,34 @@
 const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
 const cors = require("cors");
+const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
+const questionRoutes = require("./routes/questionRoutes");
+
+dotenv.config();
 
 const app = express();
-app.use(cors());
 
-const users = [
-  { id: 1, name: "John Doe", email: "john@example.com" },
-  { id: 2, name: "Jane Smith", email: "jane@example.com" },
-  { id: 3, name: "Alice Johnson", email: "alice@example.com" },
-];
+// Middleware
+app.use(express.json()); // For parsing application/json
+app.use(cors()); // Allow cross-origin requests
 
-app.get("/users", (req, res) => {
-  res.json(users);
-});
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api", userRoutes);
+app.use("/api", questionRoutes);
+// Database connection
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Database connected successfully"))
+  .catch((error) => console.log("Database connection failed:", error));
 
-const PORT = process.env.PORT || 5000;
+// Start server
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
